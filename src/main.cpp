@@ -1,63 +1,19 @@
-#include <array>
+#include "yocto_image/YoctoImage.hpp"
+
 #include <iostream>
-#include <string_view>
-
-class IReadinessRule {
- public:
-  virtual ~IReadinessRule() = default;
-  virtual bool passes(std::string_view evidenceTarget) const = 0;
-  virtual std::string_view name() const = 0;
-};
-
-class RequiredEvidenceRule final : public IReadinessRule {
- public:
-  bool passes(std::string_view evidenceTarget) const override {
-    return !evidenceTarget.empty();
-  }
-
-  std::string_view name() const override {
-    return "RequiredEvidenceRule";
-  }
-};
-
-struct ProjectProfile {
-  std::string_view title;
-  std::string_view summary;
-  std::string_view evidenceTarget;
-  std::array<std::string_view, 9> tags;
-};
-
-constexpr ProjectProfile profile{
-  "Embedded Linux / Yocto Image",
-  "Custom Linux image for Raspberry Pi, BeagleBone, or i.MX-class hardware with Yocto recipes, kernel config, service units, and rootfs notes.",
-  "Board-support fluency, package ownership, appliance-style Linux builds, and reproducible edge deployment.",
-  {
-    "C++17",
-    "C++ Design Patterns",
-    "SOLID",
-    "Yocto",
-    "BitBake",
-    "Kernel config",
-    "Systemd",
-    "Device tree",
-    "Rootfs"
-  }
-};
 
 int main() {
-  const RequiredEvidenceRule readinessRule;
+  yocto_image::YoctoImageValidator validator;
+  yocto_image::TextImageReporter reporter(std::cout);
 
-  std::cout << profile.title << '\n';
-  std::cout << "Summary: " << profile.summary << '\n';
-  std::cout << "Evidence target: " << profile.evidenceTarget << '\n';
-  std::cout << "Readiness rule: " << readinessRule.name() << '\n';
-  std::cout << "SOLID marker: C++17 strategy interface with replaceable readiness rule" << '\n';
-  std::cout << "Stack:";
+  std::cout << "Embedded Linux / Yocto Image\n";
+  std::cout << "Image: i.MX93 BEMS appliance with RAUC OTA\n\n";
 
-  for (std::size_t index = 0; index < profile.tags.size(); ++index) {
-    std::cout << ' ' << profile.tags[index] << (index + 1U == profile.tags.size() ? "" : ",");
-  }
-
-  std::cout << '\n';
-  return readinessRule.passes(profile.evidenceTarget) ? 0 : 1;
+  const auto report = validator.validate(yocto_image::demoMachine(),
+                                         yocto_image::demoRecipes(),
+                                         yocto_image::demoUnits(),
+                                         yocto_image::demoBemsConfig(),
+                                         yocto_image::demoOtaConfig());
+  reporter.publish(report);
+  return report.accepted ? 0 : 1;
 }

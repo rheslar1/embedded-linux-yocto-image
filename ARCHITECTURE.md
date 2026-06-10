@@ -6,41 +6,47 @@ Board-support fluency, package ownership, appliance-style Linux builds, and repr
 
 ## Runtime Shape
 
-1. Hardware or simulator input is sampled through a narrow driver boundary.
-2. A control profile normalizes state into a deterministic decision surface.
-3. Safety checks reject unsafe commands before they reach the actuator, transport, or update path.
-4. Telemetry and validation logs are emitted for repeatable review.
+1. The image declares an i.MX93 machine, distro, kernel provider, and device tree.
+2. Rootfs policy requires systemd, secure boot posture, and read-only rootfs behavior.
+3. The BEMS gateway recipe pulls `rheslar1/bems-edge-ai-gateway` into the image.
+4. The BEMS systemd unit waits for network-online and restarts on failure.
+5. OTA policy installs signed RAUC/SWUpdate/Mender artifacts to the inactive rootfs slot.
+6. Validation evidence records image readiness before a full BitBake build.
 
 ## C++17 Design Shape
 
-- `ProjectProfile` owns project identity and evidence text.
-- `IReadinessRule` defines a narrow strategy interface for scaffold readiness checks.
-- `RequiredEvidenceRule` is a concrete strategy used by the starter executable and tests.
-- The scaffold keeps documentation, executable behavior, and validation concerns separated.
+- `YoctoImageValidator` owns image composition checks.
+- `MachineProfile`, `PackageRecipe`, `SystemdUnit`, `BemsGatewayConfig`, and `OtaConfig` make the image contract explicit.
+- `TextImageReporter` emits reviewable CI evidence.
+- Yocto snippets under `yocto/` document the eventual layer/recipe shape.
 
 ## SOLID Notes
 
-- Single Responsibility: profile data and readiness rules are separate.
-- Open/Closed: new readiness rules can be added without changing the profile object.
-- Liskov Substitution: any `IReadinessRule` can replace the default rule.
-- Interface Segregation: the readiness interface exposes only one focused operation.
-- Dependency Inversion: the executable consumes the readiness rule abstraction.
+- Single Responsibility: machine, packages, units, BEMS, OTA, and reporting are separated.
+- Open/Closed: additional machines, OTA backends, or services can be added through data without changing tests broadly.
+- Liskov Substitution: RAUC, SWUpdate, and Mender share the same OTA contract.
+- Interface Segregation: the validator consumes focused records, not a monolithic config blob.
+- Dependency Inversion: future BitBake parsers can feed the same validation model.
 
 ## Boundaries
 
-- `src/`: native starter implementation and future device-specific drivers.
+- `include/yocto_image/`: image composition model.
+- `src/`: validator, reporter, and CLI demo.
+- `yocto/`: sample Yocto layer, BEMS recipe, and systemd unit.
 - `docs/`: validation plans, timing notes, hardware captures, and acceptance evidence.
-- `tests/`: repo-level smoke tests and future simulator or host-side unit tests.
+- `tests/`: host-side tests for image composition gates.
 - `.github/workflows/`: CI entry point for build and validation evidence.
 
 ## Validation Plan
 
-- Build the host starter with CMake.
-- Run the executable and confirm the reported profile matches this repository.
-- Run CTest to validate the C++17 readiness scaffold.
-- Add hardware-specific logs after the first board, simulator, or bus test.
+- Build the host image validator with CMake.
+- Run the executable and confirm the BEMS/OTA appliance image is accepted.
+- Run CTest to validate BEMS recipe, systemd, secure boot, and OTA policies.
+- Add BitBake build logs, boot logs, and RAUC/SWUpdate evidence after Yocto integration.
 - Capture CI, terminal, and hardware evidence for the portfolio detail page.
 
 ## Expansion Notes
 
-Replace the starter profile with the project-specific implementation slice while preserving the same review boundaries: build, tests, architecture notes, validation logs, and screenshots.
+- Connect the host model to parsed BitBake metadata.
+- Expand `meta-rheslar-bems` with kernel config fragments, device tree overlays, and OTA slot configuration.
+- Reuse BEMS gateway CI artifacts as Yocto package inputs once release artifacts exist.

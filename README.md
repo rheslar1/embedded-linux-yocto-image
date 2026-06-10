@@ -4,9 +4,7 @@ Custom Linux image for Raspberry Pi, BeagleBone, or i.MX-class hardware with Yoc
 
 ## Portfolio Purpose
 
-This repository is an Embedded Systems project scaffold for the Rheslar portfolio. It is designed to become a hardware-backed project with build output, validation logs, and reviewable implementation evidence.
-
-All generated Embedded Systems repos are C++17-first and are framed around C++ design patterns and SOLID design principles.
+This repository implements a host-testable Yocto image composition model for an i.MX93-class BEMS edge appliance. It validates board profile, kernel/device tree ownership, read-only rootfs, systemd, the BEMS edge AI gateway recipe and service, and signed RAUC-style A/B OTA readiness.
 
 ## Stack
 
@@ -19,6 +17,9 @@ All generated Embedded Systems repos are C++17-first and are framed around C++ d
 - Systemd
 - Device tree
 - Rootfs
+- BEMS
+- OTA
+- RAUC
 
 ## Quick Start
 
@@ -31,11 +32,13 @@ ctest --test-dir build --output-on-failure
 
 ## Implementation Slices
 
-- C++17 starter executable that exposes the project identity, stack, and validation target.
-- Small strategy-style readiness check that keeps the scaffold aligned with C++ design patterns.
-- Architecture document with control boundaries, data flow, safety assumptions, and evidence plan.
-- CTest smoke test that keeps source, docs, and CI files present as the repo grows.
-- GitHub Actions workflow for configure, build, executable smoke run, and repository validation.
+- i.MX93 machine profile with kernel provider and device tree checks.
+- Read-only rootfs and systemd policy validation.
+- BEMS edge gateway recipe/service integration from `rheslar1/bems-edge-ai-gateway`.
+- BACnet/IP, RabbitMQ, TLS, and watchdog requirements for the BEMS service.
+- RAUC-style signed A/B rootfs OTA policy with rollback and bootloader mark-good checks.
+- Example Yocto layer files under `yocto/meta-rheslar-bems`.
+- CTest coverage for accepted image composition, missing BEMS recipe, disabled BEMS service, missing secure boot, and OTA rollback policy.
 
 ## Evidence Target
 

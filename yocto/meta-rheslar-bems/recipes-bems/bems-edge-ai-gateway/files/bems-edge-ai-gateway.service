@@ -1,0 +1,12 @@
+[Unit]
+Description=BEMS Edge AI Gateway
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/bin/bems-edge-ai-gateway --config /etc/bems/gateway.toml
+Restart=on-failure
+WatchdogSec=30
+
+[Install]
+WantedBy=multi-user.target

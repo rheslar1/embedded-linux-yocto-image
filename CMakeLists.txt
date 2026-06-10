@@ -7,9 +7,17 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 enable_testing()
 
+add_library(yocto_image_core
+  src/YoctoImage.cpp
+)
+target_include_directories(yocto_image_core PUBLIC include)
+target_compile_options(yocto_image_core PRIVATE -Wall -Wextra -Wpedantic)
+
 add_executable(${PROJECT_NAME} src/main.cpp)
+target_link_libraries(${PROJECT_NAME} PRIVATE yocto_image_core)
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
 
-add_executable(profile_tests tests/ProfileTests.cpp)
-target_compile_options(profile_tests PRIVATE -Wall -Wextra -Wpedantic)
-add_test(NAME profile_tests COMMAND profile_tests)
+add_executable(yocto_image_tests tests/YoctoImageTests.cpp)
+target_link_libraries(yocto_image_tests PRIVATE yocto_image_core)
+target_compile_options(yocto_image_tests PRIVATE -Wall -Wextra -Wpedantic)
+add_test(NAME yocto_image_tests COMMAND yocto_image_tests)

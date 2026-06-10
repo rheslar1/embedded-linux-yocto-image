@@ -1,17 +1,20 @@
 # Validation Plan
 
-## Current Scaffold Checks
+## Current Host Checks
 
 - CMake configure completes.
-- C++17 starter executable builds.
-- Executable prints the project title, SOLID marker, stack, and validation target.
-- CTest verifies the project profile and readiness strategy.
+- C++17 Yocto image validator builds.
+- Executable accepts the i.MX93 BEMS appliance image with RAUC OTA.
+- CTest verifies BEMS recipe presence, BEMS systemd enablement, secure boot policy, and OTA rollback policy.
+- GitHub Actions runs configure, build, executable smoke run, and CTest.
 
 ## Hardware Evidence To Add
 
-- Board, simulator, or bus setup photo.
-- Terminal output from the first successful run.
-- Timing, power, memory, or safety measurement relevant to this project.
+- BitBake build log for the BEMS image.
+- `systemctl status bems-edge-ai-gateway` from first boot.
+- RAUC/SWUpdate/Mender slot status before and after update.
+- Device tree and kernel config evidence for the target board.
+- Read-only rootfs mount evidence.
 - CI screenshot after the public repository is pushed.
 
 ## Project-Specific Evidence Target
